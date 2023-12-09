@@ -48,6 +48,7 @@ impl Graph {
     }
 
     pub fn add_node(&mut self, node: &mut Node) -> Result<(), GraphError> {
+        /*  checkers before add a node */
         if self.exists_node(node.id) {
             return Err(GraphError::DuplicatedIdFound(node.id));
         }
@@ -63,23 +64,23 @@ impl Graph {
         }
 
         /* setting metrics */
-        self.update_metrics(node, parents);
+        self.update_metrics(node);
 
         /* add vertex */
         self.add_vertex(node);
         Ok(())
     }
-    fn update_metrics(&mut self, node: &mut Node, parents: (u32, u32)) {
+    fn update_metrics(&mut self, node: &mut Node) {
         let left_parent = self
             .nodes
-            .get_mut(&parents.0)
+            .get_mut(&node.parents.unwrap().0)
             .expect("getting value for left parent");
         left_parent.metrics.in_reference += 1;
         let left_depth = left_parent.metrics.depth;
 
         let right_parent = self
             .nodes
-            .get_mut(&parents.1)
+            .get_mut(&node.parents.unwrap().1)
             .expect("getting value for right parent");
         right_parent.metrics.in_reference += 1;
         let right_depth = right_parent.metrics.depth;
