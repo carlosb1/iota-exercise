@@ -132,7 +132,6 @@ mod tests {
         assert_eq!(1, *graph.nodes.keys().next().expect("Key not found"));
     }
 
-    //TODO builder pattern
     #[test]
     fn should_create_a_simple_graph() {
         let mut graph = Graph::with_capacity(2);

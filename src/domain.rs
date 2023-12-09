@@ -1,7 +1,5 @@
 use std::fmt;
-use std::num::ParseIntError;
 
-// Domain classes
 #[derive(Debug, Clone, PartialEq)]
 pub struct Node {
     pub id: u32,
@@ -37,18 +35,6 @@ impl Node {
                 in_reference: 0,
             },
         }
-    }
-}
-
-impl TryFrom<(&[&str; 3], u32)> for Node {
-    type Error = ParseIntError;
-    fn try_from(params: (&[&str; 3], u32)) -> Result<Self, ParseIntError> {
-        let fields = params.0;
-        let id = params.1;
-        let left_parent = fields[0].parse()?;
-        let right_parent = fields[1].parse()?;
-        let timestamp = fields[2].parse()?;
-        Ok(Node::new(id as u32, left_parent, right_parent, timestamp))
     }
 }
 

@@ -2,7 +2,6 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
 
-use crate::domain::Node;
 use crate::graph::Graph;
 
 use thiserror::Error;
@@ -17,15 +16,16 @@ pub enum InfraError {
     NotFileSpecified,
 }
 
-fn parse_node(line: String, num: usize) -> Result<Node, InfraError> {
+fn parse_node(line: String) -> Result<(u32, u32, u32), InfraError> {
     let fields: [&str; 3] = line
         .split(' ')
         .collect::<Vec<&str>>()
         .try_into()
         .map_err(|_| InfraError::ParseNode)?;
-    let new_id = num + 1;
-    let node = Node::try_from((&fields, new_id as u32)).map_err(|_| InfraError::ParseNode)?;
-    Ok(node)
+    let left_parent = fields[0].parse().map_err(|_| InfraError::ParseNode)?;
+    let right_parent = fields[1].parse().map_err(|_| InfraError::ParseNode)?;
+    let timestamp = fields[2].parse().map_err(|_| InfraError::ParseNode)?;
+    Ok((left_parent, right_parent, timestamp))
 }
 
 pub struct DBRepository {
@@ -46,30 +46,24 @@ impl DBRepository {
         let file = File::open(self.path_buf.clone()).map_err(|_| InfraError::NotFileSpecified)?;
         let reader = BufReader::new(file);
 
-        let mut number_nodes: usize = 0;
-        let mut nodes: Vec<Node> = Vec::new();
+        let mut nodes: Vec<(u32, u32, u32)> = Vec::new();
         for (num, line) in reader.lines().enumerate() {
             match num {
                 0 => {
-                    number_nodes =
-                        line.expect("First line was not parsed")
-                            .parse()
-                            .map_err(|_| {
-                                InfraError::ParseGraph("first line was not parsed".to_string())
-                            })?;
+                    line.expect("First line was not parsed")
+                        .parse::<u32>()
+                        .map_err(|_| {
+                            InfraError::ParseGraph("first line was not parsed".to_string())
+                        })?;
                 }
                 _ => {
                     let line = line.expect("Failed to read line");
-                    nodes.push(parse_node(line, num)?);
+                    nodes.push(parse_node(line)?);
                 }
             }
         }
-        let mut graph = Graph::with_capacity(number_nodes as u32);
-        for mut node in nodes {
-            graph.add_node(&mut node).map_err(|_| {
-                InfraError::ParseGraph("impossible add node in the graph".to_string())
-            })?;
-        }
+        let graph = Graph::try_from(nodes)
+            .map_err(|_| InfraError::ParseGraph("impossible add node in the graph".to_string()))?;
 
         Ok(graph)
     }
@@ -81,6 +75,8 @@ mod tests {
     use std::io::Write;
     use tempfile::tempdir;
     use tempfile::TempDir;
+
+    use crate::domain::Node;
 
     fn create_temp_file(input_content: &str, dir: &TempDir) -> PathBuf {
         let file_path = dir.path().join("temp.txt");
