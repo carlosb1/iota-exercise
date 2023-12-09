@@ -15,11 +15,11 @@ pub enum GraphError {
 }
 
 #[derive(Debug, Clone, PartialEq)]
-struct Stadistics {
+struct Metrics {
     depth: u32,
     in_reference: u32,
 }
-impl fmt::Display for Stadistics {
+impl fmt::Display for Metrics {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let output = format!(
             "(depth={:},in_reference={:})",
@@ -34,7 +34,7 @@ pub struct Node {
     pub id: u32,
     pub timestamp: u32,
     pub parents: Option<(u32, u32)>,
-    stats: Stadistics,
+    metrics: Metrics,
 }
 
 impl Node {
@@ -43,7 +43,7 @@ impl Node {
             id,
             timestamp,
             parents: Some((left_parent, right_parent)),
-            stats: Stadistics {
+            metrics: Metrics {
                 depth: 0,
                 in_reference: 0,
             },
@@ -68,14 +68,14 @@ impl fmt::Display for Node {
         let mut output = String::new();
         if let Some(parents) = self.parents {
             output += format!(
-                "- id={:}(left={:?} right={:?}) info=(t={:?}, stats={:})",
-                self.id, parents.0, parents.1, self.timestamp, self.stats
+                "- id={:}(left={:?} right={:?}) info=(t={:?}, metrics={:})",
+                self.id, parents.0, parents.1, self.timestamp, self.metrics
             )
             .as_str();
         } else {
             output += format!(
-                "- id={:}() info=(t={:?}, stats={:})",
-                self.id, self.timestamp, self.stats
+                "- id={:}() info=(t={:?}, metrics={:})",
+                self.id, self.timestamp, self.metrics
             )
             .as_str();
         }
@@ -93,7 +93,7 @@ const ROOT_NODE: Node = Node {
     id: 1,
     parents: None,
     timestamp: 0,
-    stats: Stadistics {
+    metrics: Metrics {
         depth: 0,
         in_reference: 0,
     },
@@ -130,21 +130,22 @@ impl Graph {
             return Err(GraphError::ParentNotFound);
         }
 
+        /* setting metrics */
         let left_parent = self
             .nodes
             .get_mut(&parents.0)
             .expect("getting value for left parent");
-        left_parent.stats.in_reference += 1;
-        let left_depth = left_parent.stats.depth;
+        left_parent.metrics.in_reference += 1;
+        let left_depth = left_parent.metrics.depth;
 
         let right_parent = self
             .nodes
             .get_mut(&parents.1)
             .expect("getting value for right parent");
-        right_parent.stats.in_reference += 1;
-        let right_depth = right_parent.stats.depth;
+        right_parent.metrics.in_reference += 1;
+        let right_depth = right_parent.metrics.depth;
 
-        node.stats.depth = std::cmp::min(left_depth, right_depth) + 1;
+        node.metrics.depth = std::cmp::min(left_depth, right_depth) + 1;
         self.add_vertex(node);
         Ok(())
     }
@@ -152,14 +153,14 @@ impl Graph {
     pub fn average_depth(&self) -> f64 {
         self.nodes
             .values()
-            .map(|node| node.stats.depth)
+            .map(|node| node.metrics.depth)
             .sum::<u32>() as f64
             / self.num_nodes as f64
     }
     pub fn average_nodes_by_depth(&self) -> f64 {
         let mut score_depth = HashMap::new();
         for node in self.nodes.values().filter(|v| v.id != 1) {
-            let entry = score_depth.entry(node.stats.depth).or_insert(0);
+            let entry = score_depth.entry(node.metrics.depth).or_insert(0);
             *entry += 1;
         }
         let num_scores = score_depth.len() as f64;
@@ -169,7 +170,7 @@ impl Graph {
     pub fn average_in_references(&self) -> f64 {
         self.nodes
             .values()
-            .map(|node| node.stats.in_reference)
+            .map(|node| node.metrics.in_reference)
             .sum::<u32>() as f64
             / self.num_nodes as f64
     }
