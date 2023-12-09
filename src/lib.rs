@@ -131,6 +131,13 @@ impl Graph {
         }
 
         /* setting metrics */
+        self.update_metrics(node, parents);
+
+        /* add vertex */
+        self.add_vertex(node);
+        Ok(())
+    }
+    fn update_metrics(&mut self, node: &mut Node, parents: (u32, u32)) {
         let left_parent = self
             .nodes
             .get_mut(&parents.0)
@@ -146,8 +153,6 @@ impl Graph {
         let right_depth = right_parent.metrics.depth;
 
         node.metrics.depth = std::cmp::min(left_depth, right_depth) + 1;
-        self.add_vertex(node);
-        Ok(())
     }
 
     pub fn average_depth(&self) -> f64 {
