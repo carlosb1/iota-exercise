@@ -13,12 +13,20 @@ fn display(stats: &ResultStadistics) {
     print!("{:}", output);
 }
 
-// logger
 fn main() {
     let args: Vec<String> = env::args().collect();
-    let path_file = args.get(1).expect("It needs one argument");
-    let repo = DBRepository::new(&path_file).expect("It was not possible load database");
-    match repo.load() {
+    let path_file = args.get(1);
+    if path_file.is_none() {
+        eprintln!("Command needs an argument");
+        return ();
+    }
+    let repo = DBRepository::new(&path_file.unwrap());
+    if repo.is_none() {
+        eprintln!("The path file must be correct");
+        return ();
+    }
+
+    match repo.unwrap().load() {
         Ok(model_graph) => {
             let stats = model_graph.stats();
             display(&stats);
