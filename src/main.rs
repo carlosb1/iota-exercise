@@ -1,12 +1,14 @@
 mod domain;
+mod graph;
 mod infra;
+mod services;
 
 use std::env;
 
 use infra::DBRepository;
-use rust_challenge::ResultStadistics;
+use services::*;
 
-fn display(stats: &ResultStadistics) {
+fn display(stats: &dto::Stadistics) {
     let mut output = String::new();
     output += format!("> AVG DAG DEPTH: {:.2}\n", stats.average_depth).as_str();
     output += format!("> AVG TXS PER DEPTH: {:.2}\n", stats.average_nodes_by_depth).as_str();
@@ -29,7 +31,7 @@ fn main() {
 
     match repo.unwrap().load() {
         Ok(model_graph) => {
-            let stats = model_graph.stats();
+            let stats = stadistics::stats(&model_graph);
             display(&stats);
         }
         Err(e) => {

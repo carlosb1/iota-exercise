@@ -2,8 +2,8 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
 
-use rust_challenge::domain::Node;
-use rust_challenge::Graph;
+use crate::domain::Node;
+use crate::graph::Graph;
 
 use thiserror::Error;
 
