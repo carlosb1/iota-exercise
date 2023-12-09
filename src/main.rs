@@ -1,3 +1,4 @@
+mod domain;
 mod infra;
 
 use std::env;
