@@ -9,7 +9,7 @@ use thiserror::Error;
 #[derive(Error, Debug, PartialEq)]
 pub enum InfraError {
     #[error("not correct node format")]
-    ParseNode,
+    ParseTransaction,
     #[error("not correct graph parse :`{0}`")]
     ParseGraph(String),
     #[error("not correct path file")]
@@ -21,10 +21,16 @@ fn parse_node(line: String) -> Result<(u32, u32, u32), InfraError> {
         .split(' ')
         .collect::<Vec<&str>>()
         .try_into()
-        .map_err(|_| InfraError::ParseNode)?;
-    let left_parent = fields[0].parse().map_err(|_| InfraError::ParseNode)?;
-    let right_parent = fields[1].parse().map_err(|_| InfraError::ParseNode)?;
-    let timestamp = fields[2].parse().map_err(|_| InfraError::ParseNode)?;
+        .map_err(|_| InfraError::ParseTransaction)?;
+    let left_parent = fields[0]
+        .parse()
+        .map_err(|_| InfraError::ParseTransaction)?;
+    let right_parent = fields[1]
+        .parse()
+        .map_err(|_| InfraError::ParseTransaction)?;
+    let timestamp = fields[2]
+        .parse()
+        .map_err(|_| InfraError::ParseTransaction)?;
     Ok((left_parent, right_parent, timestamp))
 }
 
@@ -76,7 +82,7 @@ mod tests {
     use tempfile::tempdir;
     use tempfile::TempDir;
 
-    use crate::domain::Node;
+    use crate::domain::Transaction;
 
     fn create_temp_file(input_content: &str, dir: &TempDir) -> PathBuf {
         let file_path = dir.path().join("temp.txt");
@@ -94,7 +100,7 @@ mod tests {
 
         let graph = repo.load().unwrap();
 
-        let mut sorted_nodes = graph.nodes.iter().collect::<Vec<(&u32, &Node)>>();
+        let mut sorted_nodes = graph.nodes.iter().collect::<Vec<(&u32, &Transaction)>>();
         sorted_nodes.sort_by_key(|(&key, _)| key);
         assert_eq!(6, sorted_nodes.len());
     }
@@ -108,7 +114,7 @@ mod tests {
 
         let graph = repo.load().unwrap();
 
-        let mut sorted_nodes = graph.nodes.iter().collect::<Vec<(&u32, &Node)>>();
+        let mut sorted_nodes = graph.nodes.iter().collect::<Vec<(&u32, &Transaction)>>();
         sorted_nodes.sort_by_key(|(&key, _)| key);
         assert_eq!(2, sorted_nodes.len());
         assert_eq!(2, *sorted_nodes.get(1).unwrap().0);
@@ -137,7 +143,7 @@ mod tests {
         let dir = tempdir().unwrap();
         let file_path = create_temp_file(input_content, &dir);
         let repo = DBRepository::new(file_path.to_str().unwrap()).unwrap();
-        assert_eq!(Err(InfraError::ParseNode), repo.load());
+        assert_eq!(Err(InfraError::ParseTransaction), repo.load());
     }
 
     #[test]

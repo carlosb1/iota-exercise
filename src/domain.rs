@@ -1,7 +1,7 @@
 use std::fmt;
 
 #[derive(Debug, Clone, PartialEq)]
-pub struct Node {
+pub struct Transaction {
     pub id: u32,
     pub timestamp: u32,
     pub parents: Option<(u32, u32)>,
@@ -24,9 +24,9 @@ impl fmt::Display for Metrics {
     }
 }
 
-impl Node {
+impl Transaction {
     pub fn new(id: u32, left_parent: u32, right_parent: u32, timestamp: u32) -> Self {
-        Node {
+        Transaction {
             id,
             timestamp,
             parents: Some((left_parent, right_parent)),
@@ -38,7 +38,7 @@ impl Node {
     }
 }
 
-impl fmt::Display for Node {
+impl fmt::Display for Transaction {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let mut output = String::new();
         if let Some(parents) = self.parents {
