@@ -33,7 +33,7 @@ Input for this problem should be a "database" in the form of a plain text file, 
 follows:
 
 
-- Line 1: N, the number of nodes in the database. Assume N < 10,000
+- Line 1: N, the number of nodes in the database. Assume N < 10.000
 - Lines 2 through N+1: the node data, where each node consists of the IDs of its left and
 right parents, and a timestamp
 - The id of a node in the database is its line number, e.g. the node in the second
@@ -76,4 +76,34 @@ $ ./ledgerstats database.txt
 > AVG DAG DEPTH: 1.33
 > AVG TXS PER DEPTH: 2.5
 > AVG REF: 1.667
+```
+
+## Solution
+
+- The implementation tries to have a balance between a good design good performance and simplicity
+- It follows a clean architecture that it implies the separation among infrastructure, services and domain modules for keeping maintainable code
+ (more secure, good testing and easy to understand and improve).
+- following these point:
+   - **simple** The code was done trying to avoid an overdesign (It didn't include builders, extra libraries, too much structures or tests without value) but it tries
+to be clean.
+   - **correct** The code applies the Rust patterns like enum errors or traits following the rust practices. The project is structured following a Domain Driven Design
+and Clean architecture to follow SOLID principles and keep the code correct.
+   - **efficient** The code tries to be efficient and manteinable. To be efficient, It preallocated a Hashmap that it permits and O(1), and it iterates
+across nodes (O(n)) when it simplies the code. I maked this decision for the requirements of N < 10000, It implies that the size of nodes will not be a bottleneck in size or time.
+   - **as close as possible to qualify as production-level software**. It includes  gitactions, testing, coverage, small PRs in the githug. It tries to keep simple 
+(not include clippy, docker or generate doc), and open to add new tools [taiki-e](https://github.com/taiki-e/install-action/tree/main?tab=readme-ov-file) 
+
+- It is possible to some more efficient solutions with some precalculations but in order to be keep the code simple (and with the requirement of N < 10000), they were not done. 
+- Checking the problem, that it is a transaction system, we added some new stadistics like the last_transaction or the most referenced one that they are useful in a real case.
+
+## Run code
+
+For testing
+```bash
+cargo test
+```
+
+For running
+```bash
+cargo run database.txt
 ```
