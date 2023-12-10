@@ -107,3 +107,10 @@ For running
 ```bash
 cargo run database.txt
 ```
+
+For avoiding the `run` command
+
+```bash
+./build.sh && ./rust-challenge database.txt
+```
+
