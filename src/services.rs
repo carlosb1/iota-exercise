@@ -4,6 +4,7 @@
 /// Data transfer objects
 pub mod dto {
     /// Stadistics structure for displaying metrics data.
+    #[derive(Debug)]
     pub struct Stadistics {
         pub average_depth: f64,
         pub average_nodes_by_depth: f64,
@@ -72,14 +73,27 @@ mod tests {
 
     const TEST: [(u32, u32, u32); 5] = [(1, 1, 0), (1, 2, 0), (2, 2, 1), (3, 3, 2), (3, 4, 3)];
 
+    const TEST_2: [(u32, u32, u32); 4] = [(1, 1, 0), (2, 2, 0), (3, 3, 1), (4, 4, 2)];
+
     #[test]
-    fn should_calculate_stats() {
+    fn should_calculate_stats_test() {
         let graph = Graph::try_from(TEST.to_vec()).unwrap();
         let stats: Stadistics = stadistics::stats(&graph);
         assert_relative_eq!(1.33, stats.average_depth, epsilon = 0.01);
         assert_eq!(2.5, stats.average_nodes_by_depth);
         assert_relative_eq!(1.66, stats.average_in_references, epsilon = 0.01);
         assert_eq!(6, stats.last_transaction);
+        assert_eq!(1, stats.most_referenced_transaction);
+    }
+
+    #[test]
+    fn should_calculate_stats_test_2() {
+        let graph = Graph::try_from(TEST_2.to_vec()).unwrap();
+        let stats: Stadistics = stadistics::stats(&graph);
+        assert_eq!(2.0, stats.average_depth);
+        assert_eq!(1.0, stats.average_nodes_by_depth);
+        assert_eq!(1.6, stats.average_in_references);
+        assert_eq!(5, stats.last_transaction);
         assert_eq!(1, stats.most_referenced_transaction);
     }
 }
