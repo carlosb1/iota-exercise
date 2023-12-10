@@ -16,7 +16,8 @@ jobs:
 
     steps:
     - uses: taiki-e/install-action@v2
-      with: nextest,cargo-llvm-cov
+      with: 
+        tool: nextest,cargo-llvm-cov
     - name: Build
       run: cargo build --verbose
     - name: Run tests
