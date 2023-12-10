@@ -1,5 +1,11 @@
+// Domain entities. It includes the transaction and metrics structures.
+// !The main graph can be considered a domain entity, but in this case, it has too much responsabilities and
+// for these reasons it was moved in another module `graph.rs`
 use std::fmt;
 
+/// Structure for the transaction - node representation
+/// it includes `id` `timestamp` both `parents` and its metrics
+/// `TransactionMetrics`.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Transaction {
     pub id: u32,
@@ -8,12 +14,19 @@ pub struct Transaction {
     pub metrics: TransactionMetrics,
 }
 
+/// Transaction metrics
+///
+/// - `depth` for a transaction  from the root node
+/// - `in_reference` current in references
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct TransactionMetrics {
     pub depth: u32,
     pub in_reference: u32,
 }
-
+/// Structure for saving graph metrics.
+///
+/// - `last_transaction` identifier from last transaction in time (last timestamp).
+/// - `most_in_reference_transaction` identifier for node transaction with most in references.
 #[derive(Debug, Clone, PartialEq, Default)]
 pub struct GeneralMetrics {
     pub last_transaction: u32,
@@ -41,6 +54,8 @@ impl fmt::Display for GeneralMetrics {
 }
 
 impl Transaction {
+    /// Constructor for a transaction. It has an unique id `id` with its parents `left_parent` and
+    /// `right_parent` and its timestamp `timestamp`
     pub fn new(id: u32, left_parent: u32, right_parent: u32, timestamp: u32) -> Self {
         Transaction {
             id,

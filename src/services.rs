@@ -1,4 +1,9 @@
+// Service module following DDD-clean architecture. It includes stadistics function,
+// the only service functions for the exercise.
+
+/// Data transfer objects
 pub mod dto {
+    /// Stadistics structure for displaying metrics data.
     pub struct Stadistics {
         pub average_depth: f64,
         pub average_nodes_by_depth: f64,
@@ -8,6 +13,7 @@ pub mod dto {
     }
 }
 
+/// Stadistics services
 pub mod stadistics {
     use super::dto;
     use crate::graph::Graph;
@@ -40,6 +46,7 @@ pub mod stadistics {
             / graph.num_nodes as f64
     }
 
+    /// Calculate stadistics from graph `graph`.
     pub fn stats(graph: &Graph) -> dto::Stadistics {
         let average_depth = average_depth(graph);
         let average_nodes_by_depth = average_nodes_by_depth(graph);

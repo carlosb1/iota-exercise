@@ -1,3 +1,10 @@
+// Infrastructure module. Following the DDD - clean architecture, It
+// includes modules connected to external services. In this case, it only
+// needs a DB that it is designed as a repository
+//
+// This DB repository checks the filepath consistency and load the graph,
+// for this use case, it only needs this function but this design is open
+// for improvements.
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::PathBuf;
@@ -6,6 +13,7 @@ use crate::graph::Graph;
 
 use thiserror::Error;
 
+/// Set of possible infrastructure errors.
 #[derive(Error, Debug, PartialEq)]
 pub enum InfraError {
     #[error("not correct node format")]
@@ -34,11 +42,14 @@ fn parse_node(line: String) -> Result<(u32, u32, u32), InfraError> {
     Ok((left_parent, right_parent, timestamp))
 }
 
+/// Public repository structure, it includes the `path_buf`
+/// for the database.
 pub struct DBRepository {
     path_buf: PathBuf,
 }
 
 impl DBRepository {
+    /// Constructor function for `path_str`. It validates is correct
     pub fn new(path_str: &str) -> Option<Self> {
         let path_buf = PathBuf::from(path_str);
         if !path_buf.exists() {
@@ -48,6 +59,8 @@ impl DBRepository {
         Some(repo)
     }
 
+    /// Graph load function. It throws different errors if something works
+    /// wrong (File is removed or modified).
     pub fn load(&self) -> Result<Graph, InfraError> {
         let file = File::open(self.path_buf.clone()).map_err(|_| InfraError::NotFileSpecified)?;
         let reader = BufReader::new(file);

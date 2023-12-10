@@ -1,3 +1,4 @@
+/// Entrypoint module, it includes the CLI and its UI for display results
 mod domain;
 mod graph;
 mod infra;

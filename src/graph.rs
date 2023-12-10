@@ -1,3 +1,7 @@
+/// The representation of the set of node-transactions. In this case, it is saved as a Hashmap
+/// where it is preallocated the necessary memory. As a requeriments, it can no be more of 10000
+/// elements, a  well allocated hashmap can be fast O(1) for querying and not too much in memory
+/// cost (10000 elements with its keys)
 use std::collections::HashMap;
 use std::fmt;
 
@@ -5,6 +9,7 @@ use thiserror::Error;
 
 use crate::domain::{GeneralMetrics, Transaction, TransactionMetrics};
 
+/// Type errors from the Graph structure
 #[derive(Error, Debug, PartialEq)]
 pub enum GraphError {
     #[error("duplicated id=`{0}`")]
@@ -15,6 +20,8 @@ pub enum GraphError {
     ParentNotSpecified,
 }
 
+/// Graph structure, it includes its a counter of nodes and all the loaded
+/// nodes. For stadistic purposes, it has a metrics structure.
 //add specification
 #[derive(Debug, PartialEq)]
 pub struct Graph {
@@ -22,6 +29,7 @@ pub struct Graph {
     pub nodes: HashMap<u32, Transaction>,
     pub metrics: GeneralMetrics,
 }
+/// Representation of a ROOT transaction with id 1
 const ROOT_NODE: Transaction = Transaction {
     id: 1,
     parents: None,
@@ -33,6 +41,7 @@ const ROOT_NODE: Transaction = Transaction {
 };
 
 impl Graph {
+    /// Constructor that allocate a prefixed size of nodes `num_child`
     pub fn with_capacity(num_child: u32) -> Self {
         let num_nodes = num_child + 1;
         let mut nodes: HashMap<u32, Transaction> = HashMap::with_capacity(num_nodes as usize);
@@ -52,6 +61,11 @@ impl Graph {
         self.nodes.insert(node.id, (*node).clone());
     }
 
+    /// Function for adding a new node `node` in the graph. It includes
+    /// - Check if it can be included
+    /// - Add in the Graph
+    /// - Update node metrics
+    /// - Update general graph metrics.
     pub fn add_node(&mut self, node: &mut Transaction) -> Result<(), GraphError> {
         /*  checkers before add a node */
         if self.exists_node(node.id) {
