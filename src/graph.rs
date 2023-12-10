@@ -184,6 +184,8 @@ impl fmt::Display for Graph {
 mod tests {
     use super::*;
 
+    const TEST: [(u32, u32, u32); 2] = [(1, 1, 1), (2, 2, 0)];
+
     #[test]
     fn should_create_a_new_graph_with_new_element() {
         let graph = Graph::with_capacity(0);
@@ -192,7 +194,7 @@ mod tests {
     }
 
     #[test]
-    fn should_create_a_simple_graph() {
+    fn should_create_a_simple_graph_with_add_node() {
         let mut graph = Graph::with_capacity(2);
         let mut node = Transaction::new(2, 1, 1, 0);
         graph.add_node(&mut node).unwrap();
@@ -201,5 +203,29 @@ mod tests {
         ids.sort();
         assert_eq!(2, ids.len());
         assert_eq!(vec![&(1 as u32), &(2 as u32)], ids);
+    }
+
+    #[test]
+    fn should_create_a_new_graph_with_from_function() {
+        let graph = Graph::try_from(TEST.to_vec()).unwrap();
+        assert_eq!(3, graph.nodes.len());
+        let mut ids = graph.nodes.keys().collect::<Vec<&u32>>();
+        ids.sort();
+        assert_eq!(vec![&(1 as u32), &(2 as u32), &(3 as u32)], ids);
+    }
+
+    #[test]
+    fn should_fail_adding_a_wrong_node() {
+        let mut graph = Graph::with_capacity(2);
+        let mut node = Transaction::new(2, 3, 3, 0);
+        assert!(graph.add_node(&mut node).is_err());
+    }
+
+    #[test]
+    fn should_fail_adding_a_duplicate_node() {
+        let mut graph = Graph::with_capacity(2);
+        let node = Transaction::new(2, 1, 1, 0);
+        assert!(graph.add_node(&mut node.clone()).is_ok());
+        assert!(graph.add_node(&mut node.clone()).is_err());
     }
 }
