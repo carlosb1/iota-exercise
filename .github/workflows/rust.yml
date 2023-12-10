@@ -15,8 +15,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: taiki-e/install-action@v2
+      with: nextest,cargo-llvm-cov
     - name: Build
       run: cargo build --verbose
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo nextest run
+    - name: Coverage
+      run: cargo llvm-cov
