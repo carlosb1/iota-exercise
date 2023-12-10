@@ -14,6 +14,12 @@ fn display(stats: &dto::Stadistics) {
     output += format!("> AVG DAG DEPTH: {:.2}\n", stats.average_depth).as_str();
     output += format!("> AVG TXS PER DEPTH: {:.2}\n", stats.average_nodes_by_depth).as_str();
     output += format!("> AVG REF: {:.2}\n", stats.average_in_references).as_str();
+    output += format!("> TRANS LAST: {:}\n", stats.last_transaction).as_str();
+    output += format!(
+        "> TRANS MOST IN REF: {:}\n",
+        stats.most_referenced_transaction
+    )
+    .as_str();
     print!("{:}", output);
 }
 
