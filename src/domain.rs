@@ -5,20 +5,36 @@ pub struct Transaction {
     pub id: u32,
     pub timestamp: u32,
     pub parents: Option<(u32, u32)>,
-    pub metrics: Metrics,
+    pub metrics: TransactionMetrics,
 }
 
-#[derive(Debug, Clone, PartialEq)]
-pub struct Metrics {
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct TransactionMetrics {
     pub depth: u32,
     pub in_reference: u32,
 }
 
-impl fmt::Display for Metrics {
+#[derive(Debug, Clone, PartialEq, Default)]
+pub struct GeneralMetrics {
+    pub last_transaction: u32,
+    pub most_in_reference_transaction: u32,
+}
+
+impl fmt::Display for TransactionMetrics {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let output = format!(
             "(depth={:},in_reference={:})",
             self.depth, self.in_reference
+        );
+        write!(f, "{}", output)
+    }
+}
+
+impl fmt::Display for GeneralMetrics {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let output = format!(
+            "(last_transaction={:},most_referenced_transaction={:})",
+            self.last_transaction, self.most_in_reference_transaction
         );
         write!(f, "{}", output)
     }
@@ -30,10 +46,7 @@ impl Transaction {
             id,
             timestamp,
             parents: Some((left_parent, right_parent)),
-            metrics: Metrics {
-                depth: 0,
-                in_reference: 0,
-            },
+            metrics: Default::default(),
         }
     }
 }

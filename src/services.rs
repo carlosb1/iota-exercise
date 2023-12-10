@@ -3,6 +3,8 @@ pub mod dto {
         pub average_depth: f64,
         pub average_nodes_by_depth: f64,
         pub average_in_references: f64,
+        pub last_transaction: u32,
+        pub most_referenced_transaction: u32,
     }
 }
 
@@ -37,14 +39,19 @@ pub mod stadistics {
             .sum::<u32>() as f64
             / graph.num_nodes as f64
     }
+
     pub fn stats(graph: &Graph) -> dto::Stadistics {
         let average_depth = average_depth(graph);
         let average_nodes_by_depth = average_nodes_by_depth(graph);
         let average_in_references = average_in_references(graph);
+        let last_transaction = graph.metrics.last_transaction;
+        let most_referenced_transaction = graph.metrics.most_in_reference_transaction;
         dto::Stadistics {
             average_depth,
             average_nodes_by_depth,
             average_in_references,
+            last_transaction,
+            most_referenced_transaction,
         }
     }
 }
@@ -65,5 +72,7 @@ mod tests {
         assert_relative_eq!(1.33, stats.average_depth, epsilon = 0.01);
         assert_eq!(2.5, stats.average_nodes_by_depth);
         assert_relative_eq!(1.66, stats.average_in_references, epsilon = 0.01);
+        assert_eq!(6, stats.last_transaction);
+        assert_eq!(1, stats.most_referenced_transaction);
     }
 }

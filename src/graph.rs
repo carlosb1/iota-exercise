@@ -3,7 +3,7 @@ use std::fmt;
 
 use thiserror::Error;
 
-use crate::domain::{Metrics, Transaction};
+use crate::domain::{GeneralMetrics, Transaction, TransactionMetrics};
 
 #[derive(Error, Debug, PartialEq)]
 pub enum GraphError {
@@ -20,12 +20,13 @@ pub enum GraphError {
 pub struct Graph {
     pub num_nodes: u32,
     pub nodes: HashMap<u32, Transaction>,
+    pub metrics: GeneralMetrics,
 }
 const ROOT_NODE: Transaction = Transaction {
     id: 1,
     parents: None,
     timestamp: 0,
-    metrics: Metrics {
+    metrics: TransactionMetrics {
         depth: 0,
         in_reference: 0,
     },
@@ -36,7 +37,11 @@ impl Graph {
         let num_nodes = num_child + 1;
         let mut nodes: HashMap<u32, Transaction> = HashMap::with_capacity(num_nodes as usize);
         nodes.insert(1, ROOT_NODE);
-        Graph { num_nodes, nodes }
+        Graph {
+            num_nodes,
+            nodes,
+            metrics: Default::default(),
+        }
     }
 
     fn exists_node(&mut self, id: u32) -> bool {
@@ -71,21 +76,60 @@ impl Graph {
         Ok(())
     }
     fn update_metrics(&mut self, node: &mut Transaction) {
+        /* Update parent nodes */
         let left_parent = self
             .nodes
             .get_mut(&node.parents.unwrap().0)
             .expect("getting value for left parent");
         left_parent.metrics.in_reference += 1;
-        let left_depth = left_parent.metrics.depth;
+
+        let left_parent_metrics: (u32, TransactionMetrics) =
+            (left_parent.id, left_parent.metrics.clone());
 
         let right_parent = self
             .nodes
             .get_mut(&node.parents.unwrap().1)
             .expect("getting value for right parent");
         right_parent.metrics.in_reference += 1;
-        let right_depth = right_parent.metrics.depth;
 
-        node.metrics.depth = std::cmp::min(left_depth, right_depth) + 1;
+        let right_parent_metrics: (u32, TransactionMetrics) =
+            (right_parent.id, right_parent.metrics.clone());
+
+        /* Setting up metrics */
+        node.metrics.depth =
+            std::cmp::min(left_parent_metrics.1.depth, right_parent_metrics.1.depth) + 1;
+
+        /* setting last enable transaction in timestamp */
+        self.update_last_transaction(node);
+        self.update_most_in_reference_transaction(left_parent_metrics);
+        self.update_most_in_reference_transaction(right_parent_metrics);
+    }
+
+    fn update_last_transaction(&mut self, node: &Transaction) {
+        if self.metrics.last_transaction == 0
+            || self
+                .nodes
+                .get(&self.metrics.last_transaction)
+                .expect("last transaction does not exist")
+                .timestamp
+                < node.timestamp
+        {
+            self.metrics.last_transaction = node.id;
+        }
+    }
+
+    fn update_most_in_reference_transaction(&mut self, to_compare: (u32, TransactionMetrics)) {
+        if self.metrics.most_in_reference_transaction == 0
+            || self
+                .nodes
+                .get(&self.metrics.most_in_reference_transaction)
+                .expect("last transaction does not exist")
+                .metrics
+                .in_reference
+                < to_compare.1.in_reference
+        {
+            self.metrics.most_in_reference_transaction = to_compare.0;
+        }
     }
 }
 
@@ -117,6 +161,7 @@ impl fmt::Display for Graph {
         sorted_nodes.iter().for_each(|(_, node)| {
             output += format!("{:?}\n", node).as_str();
         });
+        output += format!("{:}", self.metrics).as_str();
         write!(f, "{}", output)
     }
 }
