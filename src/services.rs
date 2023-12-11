@@ -3,9 +3,9 @@
 
 /// Data transfer objects
 pub mod dto {
-    /// Stadistics structure for displaying metrics data.
+    /// Statistics structure for displaying metrics data.
     #[derive(Debug)]
-    pub struct Stadistics {
+    pub struct Statistics {
         pub average_depth: f64,
         pub average_nodes_by_depth: f64,
         pub average_in_references: f64,
@@ -14,8 +14,8 @@ pub mod dto {
     }
 }
 
-/// Stadistics services
-pub mod stadistics {
+/// Statistics services
+pub mod statistics {
     use super::dto;
     use crate::graph::Graph;
     use std::collections::HashMap;
@@ -48,13 +48,13 @@ pub mod stadistics {
     }
 
     /// Calculate stadistics from graph `graph`.
-    pub fn stats(graph: &Graph) -> dto::Stadistics {
+    pub fn stats(graph: &Graph) -> dto::Statistics {
         let average_depth = average_depth(graph);
         let average_nodes_by_depth = average_nodes_by_depth(graph);
         let average_in_references = average_in_references(graph);
         let last_transaction = graph.metrics.last_transaction;
         let most_referenced_transaction = graph.metrics.most_in_reference_transaction;
-        dto::Stadistics {
+        dto::Statistics {
             average_depth,
             average_nodes_by_depth,
             average_in_references,
@@ -68,7 +68,7 @@ pub mod stadistics {
 mod tests {
     use super::*;
     use crate::graph::Graph;
-    use crate::services::dto::Stadistics;
+    use crate::services::dto::Statistics;
     use approx::*;
 
     const TEST: [(u32, u32, u32); 5] = [(1, 1, 0), (1, 2, 0), (2, 2, 1), (3, 3, 2), (3, 4, 3)];
@@ -78,7 +78,7 @@ mod tests {
     #[test]
     fn should_calculate_stats_test() {
         let graph = Graph::try_from(TEST.to_vec()).unwrap();
-        let stats: Stadistics = stadistics::stats(&graph);
+        let stats: Statistics = statistics::stats(&graph);
         assert_relative_eq!(1.33, stats.average_depth, epsilon = 0.01);
         assert_eq!(2.5, stats.average_nodes_by_depth);
         assert_relative_eq!(1.66, stats.average_in_references, epsilon = 0.01);
@@ -89,7 +89,7 @@ mod tests {
     #[test]
     fn should_calculate_stats_test_2() {
         let graph = Graph::try_from(TEST_2.to_vec()).unwrap();
-        let stats: Stadistics = stadistics::stats(&graph);
+        let stats: Statistics = statistics::stats(&graph);
         assert_eq!(2.0, stats.average_depth);
         assert_eq!(1.0, stats.average_nodes_by_depth);
         assert_eq!(1.6, stats.average_in_references);

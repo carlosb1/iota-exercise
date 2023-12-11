@@ -9,7 +9,7 @@ use std::env;
 use infra::DBRepository;
 use services::*;
 
-fn display(stats: &dto::Stadistics) {
+fn display(stats: &dto::Statistics) {
     let mut output = String::new();
     output += format!("> AVG DAG DEPTH: {:.2}\n", stats.average_depth).as_str();
     output += format!("> AVG TXS PER DEPTH: {:.2}\n", stats.average_nodes_by_depth).as_str();
@@ -38,7 +38,7 @@ fn main() {
 
     match repo.unwrap().load() {
         Ok(model_graph) => {
-            let stats = stadistics::stats(&model_graph);
+            let stats = statistics::stats(&model_graph);
             display(&stats);
         }
         Err(e) => {
