@@ -80,21 +80,27 @@ $ ./ledgerstats database.txt
 
 ## Solution
 
-- The implementation tries to have a balance between a good design good performance and simplicity
+- The implementation tries to have a balance between a good design good performance and simplicity. As a data structure was decided to apply is a preallocated hashmap. 
+It permits not collision queries and a constant complexity when it iterates across all the nodes.
+
 - It follows a clean architecture that it implies the separation among infrastructure, services and domain modules for keeping maintainable code
- (more secure, good testing and easy to understand and improve).
+ (more secure, good testing and easy to understand and improve). This structure permits to keep a correct and clean code.
+
 - following these point:
-   - **simple** The code was done trying to avoid an overdesign (It didn't include builders, extra libraries, too much structures or tests without value) but it tries
-to be clean.
+   - **simple** The code tries to avoid an overdesign (It didn't include builders, extra libraries, too much structures or tests without value) but with best
+practices (split responsabilities, useful tests, error abstraction, etc...). In the algorithm decisions, we applied a balance efficient-simplicity.
+
    - **correct** The code applies the Rust patterns like enum errors or traits following the rust practices. The project is structured following a Domain Driven Design
 and Clean architecture to follow SOLID principles and keep the code correct.
-   - **efficient** The code tries to be efficient and manteinable. To be efficient, It preallocated a Hashmap that it permits and O(1), and it iterates
-across nodes (O(n)) when it simplies the code. I maked this decision for the requirements of N < 10000, It implies that the size of nodes will not be a bottleneck in size or time.
-   - **as close as possible to qualify as production-level software**. It includes  gitactions, testing, coverage, small PRs in the githug. It tries to keep simple 
-(not include clippy, docker or generate doc), and open to add new tools [taiki-e](https://github.com/taiki-e/install-action/tree/main?tab=readme-ov-file) 
 
-- It is possible to some more efficient solutions with some precalculations but in order to be keep the code simple (and with the requirement of N < 10000), they were not done. 
-- Checking the problem, that it is a transaction system, we added some new stadistics like the last_transaction or the most referenced one that they are useful in a real case.
+   - **efficient** The code tries to be efficient and manteinable. To be efficient, the hashmap that it permits and O(1), and it iterates
+across nodes (O(n)). The requirements of N < 10000 avoid bottlenecks in memory and time performance.
+
+   - **as close as possible to qualify as production-level software**. It includes  gitactions, testing, coverage, small commits in the gitgub (I did a first PoC and then small commits) but 
+tries to keep it simple (not clippy, docker, versioning, multiplatform or generate doc), but it is open to include any new feature [taiki-e](https://github.com/taiki-e/install-action/tree/main?tab=readme-ov-file) 
+
+- It is possible to try more efficient solutions (in some cases) with some precalculations but in order to be keep the code simple (and with the requirement of N < 10000), they were not done. 
+- Checking the problem, that it is a transaction system, we added some new statistics like the last_transaction or the most referenced one that they are useful in a real case.
 
 ## Run code
 
@@ -108,7 +114,7 @@ For running
 cargo run database.txt
 ```
 
-For avoiding the `run` command
+For avoiding the `run` command (check `chmod +x` for build script) 
 
 ```bash
 ./build.sh && ./rust-challenge database.txt
