@@ -65,11 +65,13 @@ impl DBRepository {
         let file = File::open(self.path_buf.clone()).map_err(|_| InfraError::NotFileSpecified)?;
         let reader = BufReader::new(file);
 
+        let mut num_nodes = 0;
         let mut nodes: Vec<(u32, u32, u32)> = Vec::new();
         for (num, line) in reader.lines().enumerate() {
             match num {
                 0 => {
-                    line.expect("First line was not parsed")
+                    num_nodes = line
+                        .expect("First line was not parsed")
                         .parse::<u32>()
                         .map_err(|_| {
                             InfraError::ParseGraph("first line was not parsed".to_string())
@@ -80,6 +82,11 @@ impl DBRepository {
                     nodes.push(parse_node(line)?);
                 }
             }
+        }
+        if nodes.len() as u32 != num_nodes {
+            return Err(InfraError::ParseGraph(
+                "First line was not correct".to_string(),
+            ));
         }
         let graph = Graph::try_from(nodes)
             .map_err(|_| InfraError::ParseGraph("impossible add node in the graph".to_string()))?;
@@ -145,6 +152,19 @@ mod tests {
         assert_eq!(
             Err(InfraError::ParseGraph(
                 "first line was not parsed".to_string()
+            )),
+            repo.load()
+        );
+    }
+    #[test]
+    fn should_fail_parse_correct_number_lines() {
+        let input_content: &str = "2\n1 1 0";
+        let dir = tempdir().unwrap();
+        let file_path = create_temp_file(input_content, &dir);
+        let repo = DBRepository::new(file_path.to_str().unwrap()).unwrap();
+        assert_eq!(
+            Err(InfraError::ParseGraph(
+                "First line was not correct".to_string()
             )),
             repo.load()
         );

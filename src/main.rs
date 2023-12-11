@@ -28,7 +28,7 @@ fn format_timestamps(timestamps: &Vec<(u32, u64)>) -> String {
     output += "> TIMESTAMPS --> NUM TRANS \n";
     for (range, count) in timestamps.iter() {
         output += format!(
-            "- {:}:{:} --> {:} trans",
+            "- {:}:{:} --> {:} trans\n",
             range,
             range + statistics::TIMESTAMP_RANGE,
             count
