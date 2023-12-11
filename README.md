@@ -80,7 +80,7 @@ $ ./ledgerstats database.txt
 
 ## Solution
 
-- The implementation tries to have a balance between a good design good performance and simplicity. As a data structure was decided to apply is a preallocated hashmap. 
+- The implementation tries to have a balance between a good design good performance and simplicity. As a data structure was decided to apply is a preallocated hashmap.
 It permits not collision queries and a constant complexity when it iterates across all the nodes.
 
 - It follows a clean architecture that it implies the separation among infrastructure, services and domain modules for keeping maintainable code
@@ -96,11 +96,15 @@ and Clean architecture to follow SOLID principles and keep the code correct.
    - **efficient** The code tries to be efficient and manteinable. To be efficient, the hashmap that it permits and O(1), and it iterates
 across nodes (O(n)). The requirements of N < 10000 avoid bottlenecks in memory and time performance.
 
-   - **as close as possible to qualify as production-level software**. It includes  gitactions, testing, coverage, small commits in the gitgub (I did a first PoC and then small commits) but 
-tries to keep it simple (not clippy, docker, versioning, multiplatform or generate doc), but it is open to include any new feature [taiki-e](https://github.com/taiki-e/install-action/tree/main?tab=readme-ov-file) 
+   - **as close as possible to qualify as production-level software**. It includes  gitactions, testing, coverage, small commits in the gitgub (I did a first PoC and then small commits) but
+tries to keep it simple (not clippy, docker, versioning, multiplatform or generate doc), but it is open to include any new feature [taiki-e](https://github.com/taiki-e/install-action/tree/main?tab=readme-ov-file)
 
-- It is possible to try more efficient solutions (in some cases) with some precalculations but in order to be keep the code simple (and with the requirement of N < 10000), they were not done. 
-- Checking the problem, that it is a transaction system, we added some new statistics like the last_transaction or the most referenced one that they are useful in a real case.
+- It is possible to try more efficient solutions (in some cases) with some precalculations but in order to be keep the code simple (and with the requirement of N < 10000), they were not done.
+- Checking the problem, that it is a transaction system, we added some new statistics like:
+    - the last_transaction (checking timestamp)
+    - the most referenced node (to evaluate the most critical transactions).
+    - classification by timestamp ranges for profiling transaction peaks
+Other interesting but we didn t do could be average timestamp between parents and node.
 
 ## Run code
 
@@ -114,9 +118,8 @@ For running
 cargo run database.txt
 ```
 
-For avoiding the `run` command (check `chmod +x` for build script) 
+For avoiding the `run` command (check `chmod +x` for build script)
 
 ```bash
 ./build.sh && ./rust-challenge database.txt
 ```
-

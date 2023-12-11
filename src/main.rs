@@ -20,7 +20,22 @@ fn display(stats: &dto::Statistics) {
         stats.most_referenced_transaction
     )
     .as_str();
+    output += format_timestamps(&stats.range_timestamps).as_str();
     print!("{:}", output);
+}
+fn format_timestamps(timestamps: &Vec<(u32, u64)>) -> String {
+    let mut output = String::new();
+    output += "> TIMESTAMPS --> NUM TRANS \n";
+    for (range, count) in timestamps.iter() {
+        output += format!(
+            "- {:}:{:} --> {:} trans",
+            range,
+            range + statistics::TIMESTAMP_RANGE,
+            count
+        )
+        .as_str();
+    }
+    output
 }
 
 fn main() {
