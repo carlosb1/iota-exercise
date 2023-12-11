@@ -1,10 +1,10 @@
 // Infrastructure module. Following the DDD - clean architecture, It
-// includes modules connected to external services. In this case, it only
-// needs a DB that it is designed as a repository
+// includes connected modules to external services. In this case, it only
+// needs a DB that it is designed as a repository pattern.
 //
 // This DB repository checks the filepath consistency and load the graph,
 // for this use case, it only needs this function but this design is open
-// for improvements.
+// for extension.
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 use std::path::PathBuf;

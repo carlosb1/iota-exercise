@@ -1,6 +1,7 @@
 // Domain entities. It includes the transaction and metrics structures.
-// !The main graph can be considered a domain entity, but in this case, it has too much responsabilities and
-// for these reasons it was moved in another module `graph.rs`
+// !The main graph can be considered a domain entity, but in this case,
+// it need  more responsabilities and for this reason,
+// it was moved in another module `graph.rs`
 use std::fmt;
 
 /// Structure for the transaction - node representation

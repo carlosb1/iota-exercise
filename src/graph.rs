@@ -1,7 +1,6 @@
-/// The representation of the set of node-transactions. In this case, it is saved as a Hashmap
-/// where it is preallocated the necessary memory. As a requeriments, it can no be more of 10000
-/// elements, a  well allocated hashmap can be fast O(1) for querying and not too much in memory
-/// cost (10000 elements with its keys)
+/// The representation of the set of node-transactions. In this case, its nodes are allocated
+/// in a preoallocated Hashmap. As one requirement, the maximum size will be 10000 and the number
+/// of nodes is known, for these reasons a dictionary structure seems a good option.
 use std::collections::HashMap;
 use std::fmt;
 
@@ -20,8 +19,8 @@ pub enum GraphError {
     ParentNotSpecified,
 }
 
-/// Graph structure, it includes its a counter of nodes and all the loaded
-/// nodes. For stadistic purposes, it has a metrics structure.
+/// Graph structure, it includes the counter of nodes and all the loaded
+/// nodes. For statistics purposes, it has a metrics structure `metrics`.
 //add specification
 #[derive(Debug, PartialEq)]
 pub struct Graph {
@@ -41,7 +40,7 @@ const ROOT_NODE: Transaction = Transaction {
 };
 
 impl Graph {
-    /// Constructor that allocate a prefixed size of nodes `num_child`
+    /// Constructor that allocates a prefixed size of nodes `num_child`
     pub fn with_capacity(num_child: u32) -> Self {
         let num_nodes = num_child + 1;
         let mut nodes: HashMap<u32, Transaction> = HashMap::with_capacity(num_nodes as usize);

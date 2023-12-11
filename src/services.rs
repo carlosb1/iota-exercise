@@ -1,4 +1,4 @@
-// Service module following DDD-clean architecture. It includes stadistics function,
+// Service module following DDD-clean architecture. It includes statistics function,
 // the only service functions for the exercise.
 
 /// Data transfer objects
